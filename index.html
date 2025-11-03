@@ -3,1657 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doma - DomainFi Revolution</title>
-    <style>
-        /* 
-        ---------------------------------------------------
-        --- D3 BRANDING & COLOR CUSTOMIZATION ---
-        ---------------------------------------------------
-        Inspired by the attached doma.png logo and D3's mission.
-        */
-        :root {
-            --background-color: #1E3A8A; /* Deep Blue, similar to doma.png background */
-            --primary-color: #FFFFFF;   /* White, for logo contrast */
-            --secondary-color: #60A5FA;  /* Lighter Blue, for accents */
-            --tertiary-color: #A78BFA;   /* Soft Purple/Lavender from logo's petals */
-            --card-background: #1A2E5F; /* Darker shade of background blue */
-            --text-color: #E0E7FF;      /* Light Blue text for readability */
-            --heading-color: #FFFFFF;
-            --subtle-border: #2E4A7F;
-            --accent-glow: rgba(96, 165, 250, 0.6); /* Lighter blue glow */
-            --matrix-color: #60A5FA; /* Primary color for matrix effect */
-            --quiz-correct-bg: rgba(167, 138, 250, 0.3); /* Purple background for correct answers */
-            --quiz-incorrect-bg: rgba(255, 82, 82, 0.2); /* Reddish tint for incorrect */
-            --tld-input-color: #A78BFA; /* Purple for TLD input focus */
-        }
-
-        /* Futuristic Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Audiowide&family=Russo+One&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-        }
-
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            position: relative;
-            text-align: center; 
-        }
-
-        /* ============================================
-           BACKGROUND EFFECTS (Subtle Iridescence)
-        ============================================ */
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1; /* Reduced opacity for subtlety */
-            overflow: hidden;
-        }
-
-        .matrix-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        /* Cosmic Stars - Changed color to Blue/Purple mix */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            width: 1.5px;
-            height: 1.5px;
-            background: linear-gradient(45deg, var(--secondary-color), var(--tertiary-color));
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-            box-shadow: 0 0 8px var(--secondary-color);
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.8); }
-        }
-
-        /* Iridescent Nebula clouds (Subtle blend of colors) */
-        .nebula {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(150px);
-            pointer-events: none;
-            z-index: 1;
-            animation: floatNebula 25s ease-in-out infinite;
-        }
-
-        .nebula1 {
-            width: 700px;
-            height: 700px;
-            background: radial-gradient(circle, rgba(96, 165, 250, 0.18), transparent); /* Lighter Blue */
-            top: -20%;
-            left: -20%;
-        }
-
-        .nebula2 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(167, 138, 250, 0.12), transparent); /* Purple */
-            bottom: -20%;
-            right: -20%;
-            animation-delay: -8s;
-        }
-
-        .nebula3 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent); /* White hint */
-            top: 50%;
-            left: 40%;
-            animation-delay: -15s;
-        }
-
-        @keyframes floatNebula {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(40px, -40px) scale(1.1); }
-            50% { transform: translate(-30px, 30px) scale(0.95); }
-            75% { transform: translate(20px, -20px) scale(1.05); }
-        }
-
-        /* Grid overlay - Use Primary Color */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(96, 165, 250, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(96, 165, 250, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* ============================================
-           HEADER 
-        ============================================ */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 100;
-            padding: 20px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(30, 58, 140, 0.85); /* Slightly less transparent background */
-            backdrop-filter: blur(15px);
-            border-bottom: 2px solid var(--secondary-color);
-            box-shadow: 0 0 25px var(--accent-glow);
-            animation: slideDown 0.8s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        header img.logo {
-            height: 55px; 
-            filter: drop-shadow(0 0 15px var(--secondary-color));
-            animation: pulse-logo 3s ease-in-out infinite;
-            transition: all 0.3s ease;
-        }
-
-        header img.logo:hover {
-            transform: scale(1.05) rotate(1deg);
-        }
-
-        @keyframes pulse-logo {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px var(--secondary-color)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 30px var(--secondary-color)); }
-        }
-
-        /* Progress Dots */
-        .progress-dots {
-            display: flex;
-            gap: 15px;
-        }
-
-        .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--subtle-border);
-            border: 2px solid transparent;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .progress-dot::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: var(--secondary-color);
-            transition: all 0.4s ease;
-        }
-
-        .progress-dot.active {
-            background: var(--secondary-color);
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 20px var(--accent-glow);
-            transform: scale(1.5);
-        }
-
-        .progress-dot.active::before {
-            width: 20px;
-            height: 20px;
-            opacity: 0.3;
-        }
-
-        .progress-dot.completed {
-            background: var(--tertiary-color); /* Use purple for completed */
-            border-color: var(--tertiary-color);
-        }
-
-        /* ============================================
-           MAIN CONTAINER 
-        ============================================ */
-        .page-container {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            display: flex;
-            align-items: center; 
-            justify-content: center; 
-            padding: 120px 5% 60px 5%;
-        }
-
-        .page {
-            display: none;
-            width: 100%;
-            max-width: 1400px; 
-            opacity: 0;
-            margin: 0 auto; 
-        }
-
-        .page.active {
-            display: block;
-            animation: pageEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        @keyframes pageEnter {
-            from {
-                opacity: 0;
-                transform: translateY(100px) scale(0.95) rotateX(10deg);
-                filter: blur(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1) rotateX(0);
-                filter: blur(0);
-            }
-        }
-
-        /* ============================================
-           TYPOGRAPHY 
-        ============================================ */
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 6rem;
-            font-weight: 900;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            letter-spacing: 5px;
-            position: relative;
-            /* New Gradient - Blending Blue, Purple, White */
-            background: linear-gradient(45deg, var(--secondary-color), var(--tertiary-color), #FFFFFF, var(--secondary-color));
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradientFlow 6s ease infinite, textGlow 3s ease-in-out infinite;
-            text-shadow: 0 0 35px var(--accent-glow);
-        }
-
-        @keyframes gradientFlow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        @keyframes textGlow {
-            0%, 100% { filter: brightness(1) drop-shadow(0 0 15px var(--secondary-color)); }
-            50% { filter: brightness(1.2) drop-shadow(0 0 40px var(--secondary-color)); }
-        }
-
-        h1::before,
-        h1::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, var(--secondary-color), var(--tertiary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        h1::before {
-            animation: glitch1 2.5s infinite;
-            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        }
-
-        h1::after {
-            animation: glitch2 2.5s infinite;
-            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-        }
-
-        @keyframes glitch1 {
-            0%, 100% { transform: translateX(0); opacity: 0; }
-            10% { transform: translateX(-3px); opacity: 1; }
-            20% { transform: translateX(3px); opacity: 0; }
-        }
-
-        @keyframes glitch2 {
-            0%, 100% { transform: translateX(0); opacity: 0; }
-            30% { transform: translateX(3px); opacity: 1; }
-            40% { transform: translateX(-3px); opacity: 0; }
-        }
-
-        h2 {
-            font-family: 'Russo One', sans-serif;
-            font-size: 4rem;
-            color: var(--heading-color);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            animation: fadeInScale 1s ease-out 0.3s backwards;
-            text-shadow: 0 0 20px var(--secondary-color);
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        h3 {
-            font-family: 'Audiowide', cursive;
-            font-size: 1.8rem;
-            color: var(--heading-color);
-            margin-bottom: 1rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .subtitle {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            text-align: center;
-            color: var(--text-color);
-            max-width: 900px;
-            margin: 0 auto 3rem auto;
-            line-height: 1.8;
-            animation: fadeInUp 1s ease-out 0.5s backwards;
-            font-weight: 400;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ============================================
-           BUTTONS 
-        ============================================ */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 18px 45px;
-            border-radius: 50px;
-            /* Gradient using Primary (Blue) and Secondary (Purple) */
-            background: linear-gradient(135deg, var(--secondary-color), var(--tertiary-color));
-            color: #000; /* Black text on light gradient is better */
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.2rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 0 30px var(--accent-glow);
-            position: relative;
-            overflow: hidden;
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.3); /* Dark ripple */
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 400px;
-            height: 400px;
-        }
-
-        .btn:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 15px 50px rgba(96, 165, 250, 0.6);
-        }
-
-        .btn:active {
-            transform: translateY(-2px) scale(1.05);
-        }
-        
-        .btn-secondary {
-            background: none;
-            color: var(--secondary-color);
-            border: 2px solid var(--secondary-color);
-            box-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(96, 165, 250, 0.1);
-            box-shadow: 0 0 40px var(--accent-glow);
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin-top: 3rem;
-            flex-wrap: wrap;
-            animation: fadeInUp 1s ease-out 0.7s backwards;
-        }
-
-        /* ============================================
-           CARDS WITH 3D EFFECTS (Updated for new scheme)
-        ============================================ */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2.5rem;
-            margin-top: 4rem;
-            perspective: 1000px;
-            max-width: 1200px; 
-            margin-left: auto; 
-            margin-right: auto; 
-        }
-
-        .card {
-            background: linear-gradient(135deg, rgba(26, 46, 95, 0.9), rgba(30, 46, 79, 0.8));
-            padding: 3rem;
-            border-radius: 20px;
-            border: 2px solid var(--subtle-border);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: cardSlideIn 0.8s ease-out backwards;
-            animation-delay: calc(var(--card-index) * 0.15s);
-            transform-style: preserve-3d;
-            text-align: left; 
-        }
-
-        .card:nth-child(1) { --card-index: 0; }
-        .card:nth-child(2) { --card-index: 1; }
-        .card:nth-child(3) { --card-index: 2; }
-        .card:nth-child(4) { --card-index: 3; }
-        .card:nth-child(5) { --card-index: 4; }
-        .card:nth-child(6) { --card-index: 5; }
-
-        @keyframes cardSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(100px) rotateX(-20deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) rotateX(0);
-            }
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            /* Gradient using Blue/Purple for subtle shimmer */
-            background: linear-gradient(45deg, 
-                transparent, 
-                rgba(96, 165, 250, 0.1), 
-                rgba(167, 138, 250, 0.08),
-                transparent
-            );
-            transform: rotate(45deg);
-            transition: all 0.6s ease;
-        }
-
-        .card:hover::before {
-            left: 100%;
-        }
-
-        .card:hover {
-            transform: translateY(-15px) rotateX(3deg) rotateY(3deg) scale(1.02);
-            border-color: var(--secondary-color);
-            box-shadow: 
-                0 30px 80px rgba(96, 165, 250, 0.4),
-                0 0 50px rgba(96, 165, 250, 0.2),
-                inset 0 0 30px rgba(96, 165, 250, 0.1);
-        }
-
-        .card-icon {
-            width: 70px;
-            height: 70px;
-            /* New Gradient: Blue to Purple */
-            background: linear-gradient(135deg, var(--secondary-color), var(--tertiary-color));
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary-color); /* White icon */
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(96, 165, 250, 0.4);
-            animation: iconFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes iconFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(3deg); }
-        }
-
-        .card ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .card li {
-            position: relative;
-            padding-left: 35px;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            animation: listItemSlide 0.5s ease-out backwards;
-            animation-delay: calc(var(--item-index) * 0.1s);
-        }
-
-        .card li:nth-child(1) { --item-index: 0; }
-        .card li:nth-child(2) { --item-index: 1; }
-        .card li:nth-child(3) { --item-index: 2; }
-        .card li:nth-child(4) { --item-index: 3; }
-
-        @keyframes listItemSlide {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .card li::before {
-            content: '✦'; /* Changed from ◆ to a star/sparkle icon */
-            position: absolute;
-            left: 0;
-            color: var(--secondary-color);
-            font-size: 1.5rem;
-            animation: iconPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes iconPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-        }
-
-        /* ============================================
-           INFO BOXES 
-        ============================================ */
-        .impact-box,
-        .info-box {
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            font-size: 1rem;
-            position: relative;
-            overflow: hidden;
-            animation: boxSlideIn 0.6s ease-out backwards;
-            text-align: left; 
-        }
-
-        @keyframes boxSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .impact-box {
-            background: rgba(255, 82, 82, 0.1); /* Red/Alert tone */
-            border-left: 4px solid #FF5252;
-            box-shadow: 0 5px 20px rgba(255, 82, 82, 0.2);
-        }
-
-        .info-box {
-            background: rgba(96, 165, 250, 0.1); /* Lighter Blue tone */
-            border-left: 4px solid var(--secondary-color);
-            box-shadow: 0 5px 20px var(--accent-glow);
-        }
-
-        /* ============================================
-           INTRO FEATURES (D3 Focus)
-        ============================================ */
-        .intro-features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin-top: 5rem;
-            max-width: 1200px; 
-            margin-left: auto; 
-            margin-right: auto; 
-        }
-
-        .intro-feature {
-            text-align: center;
-            padding: 3rem 2rem;
-            /* New Gradient: Purple to Blue */
-            background: linear-gradient(135deg, rgba(167, 138, 250, 0.08), rgba(96, 165, 250, 0.1));
-            border-radius: 20px;
-            border: 2px solid var(--subtle-border);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: featureZoomIn 0.8s ease-out backwards;
-            animation-delay: calc(var(--feature-index) * 0.2s);
-        }
-
-        .intro-feature:nth-child(1) { --feature-index: 0; }
-        .intro-feature:nth-child(2) { --feature-index: 1; }
-        .intro-feature:nth-child(3) { --feature-index: 2; }
-
-        @keyframes featureZoomIn {
-            from {
-                opacity: 0;
-                transform: scale(0.5) rotate(-10deg);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) rotate(0);
-            }
-        }
-
-        .intro-feature:hover {
-            transform: translateY(-15px) scale(1.05);
-            border-color: var(--secondary-color);
-            box-shadow: 0 20px 60px var(--accent-glow);
-            background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(167, 138, 250, 0.1));
-        }
-
-        .intro-feature-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            display: inline-block;
-            animation: iconRotate 4s ease-in-out infinite;
-        }
-
-        @keyframes iconRotate {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(-10deg) scale(1.1); }
-            75% { transform: rotate(10deg) scale(1.1); }
-        }
-
-        /* ============================================
-           DOMAINFI SECTION (Focus on Tokenization and Assets)
-        ============================================ */
-        .domainfi-container {
-            /* New Gradient: Dark base with Primary/Secondary borders */
-            background: linear-gradient(135deg, rgba(26, 46, 95, 0.95), rgba(30, 46, 79, 0.9));
-            border: 2px solid var(--secondary-color);
-            border-radius: 25px;
-            padding: 3.5rem;
-            margin-top: 4rem;
-            position: relative;
-            box-shadow: 0 20px 60px var(--accent-glow);
-            animation: containerSlideUp 1s ease-out backwards;
-            max-width: 1000px; 
-            margin-left: auto; 
-            margin-right: auto; 
-        }
-
-        @keyframes containerSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(100px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .domainfi-controls {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .domainfi-step {
-            border: 2px solid var(--subtle-border);
-            border-radius: 15px;
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            background: rgba(96, 165, 250, 0.05); /* Lighter Blue background for steps */
-            opacity: 0;
-            transform: translateX(-100px) rotateY(-20deg);
-            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            text-align: left; 
-        }
-
-        .domainfi-step.visible {
-            opacity: 1;
-            transform: translateX(0) rotateY(0);
-            border-color: var(--secondary-color);
-            box-shadow: 0 10px 40px var(--accent-glow);
-        }
-
-        .domainfi-step h3 {
-            color: var(--tertiary-color); /* Purple for step titles */
-            border-bottom: 2px solid var(--tertiary-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 10px rgba(167, 138, 250, 0.5);
-        }
-
-        .asset-view-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .asset-view {
-            padding: 2rem;
-            border-radius: 12px;
-            transition: all 0.4s ease;
-        }
-
-        .asset-view:hover {
-            transform: scale(1.03); /* Less aggressive scale */
-        }
-
-        .public-asset-view {
-            background: rgba(96, 165, 250, 0.1); /* Lighter Blue background */
-            border: 2px solid var(--secondary-color);
-        }
-
-        .private-asset-view {
-            background: rgba(167, 138, 250, 0.08); /* Purple background */
-            border: 2px solid var(--tertiary-color);
-        }
-
-        .tokenized-data {
-            background: #1A2E5F; /* Darker card background for hidden text */
-            color: #1A2E5F;
-            border-radius: 6px;
-            padding: 4px 12px;
-            user-select: none;
-            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: inline-block;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tokenized-data::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            /* Shimmer using Purple */
-            background: linear-gradient(90deg, transparent, rgba(167, 138, 250, 0.4), transparent);
-            transition: left 0.8s ease;
-        }
-
-        .tokenized-data.revealed {
-            background: transparent;
-            color: var(--tertiary-color); /* Reveal in Purple */
-            text-shadow: 0 0 10px var(--tertiary-color);
-            animation: dataReveal 0.8s ease-out;
-        }
-
-        /* ============================================
-           BUILD-A-TLD SECTION (Interactive Idea)
-        ============================================ */
-        #build-tld-container {
-            background: linear-gradient(135deg, rgba(26, 46, 95, 0.95), rgba(30, 46, 79, 0.9));
-            padding: 3.5rem;
-            border-radius: 25px;
-            border: 2px solid var(--secondary-color);
-            max-width: 900px;
-            margin: 4rem auto 0 auto;
-            box-shadow: 0 20px 60px var(--accent-glow);
-            animation: containerSlideUp 1s ease-out backwards;
-            text-align: left;
-        }
-
-        #build-tld-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid var(--secondary-color);
-            font-family: 'Audiowide', cursive;
-            font-size: 1.2rem;
-            text-align: left;
-        }
-
-        #tld-question {
-            font-size: 1.8rem;
-            margin-bottom: 2.5rem;
-            color: var(--heading-color);
-            animation: questionSlideIn 0.6s ease-out;
-            text-align: left;
-        }
-
-        .tld-input-group {
-            margin-bottom: 2rem;
-        }
-
-        .tld-input-group label {
-            display: block;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: var(--heading-color);
-            font-family: 'Russo One', sans-serif;
-        }
-
-        .tld-input-field {
-            width: 100%;
-            padding: 1.8rem;
-            margin-bottom: 1.5rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid var(--subtle-border);
-            border-radius: 15px;
-            text-align: left;
-            color: var(--text-color);
-            font-size: 1.15rem;
-            font-family: 'Rajdhani', sans-serif;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .tld-input-field:focus {
-            outline: none;
-            border-color: var(--tld-input-color);
-            box-shadow: 0 0 30px rgba(167, 138, 250, 0.4);
-        }
-
-        #tld-example-output {
-            margin-top: 2rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            text-align: center;
-            font-family: 'Audiowide', cursive;
-            animation: feedbackPop 0.5s ease-out;
-            color: var(--tertiary-color); /* Purple for output */
-            text-shadow: 0 0 10px rgba(167, 138, 250, 0.5);
-        }
-
-        /* ============================================
-           QUIZ SECTION (DomainFi/Blockchain Themed)
-        ============================================ */
-        #quiz-container {
-            background: linear-gradient(135deg, rgba(26, 46, 95, 0.95), rgba(30, 46, 79, 0.9));
-            padding: 3.5rem;
-            border-radius: 25px;
-            border: 2px solid var(--secondary-color);
-            max-width: 900px;
-            margin: 4rem auto 0 auto;
-            box-shadow: 0 20px 60px var(--accent-glow);
-            animation: containerSlideUp 1s ease-out backwards;
-            text-align: left;
-        }
-
-        #quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid var(--secondary-color);
-            font-family: 'Audiowide', cursive;
-            font-size: 1.2rem;
-            text-align: left;
-        }
-
-        #quiz-question {
-            font-size: 1.8rem;
-            margin-bottom: 2.5rem;
-            color: var(--heading-color);
-            animation: questionSlideIn 0.6s ease-out;
-            text-align: left;
-        }
-
-        .answer-option {
-            display: block;
-            width: 100%;
-            padding: 1.8rem;
-            margin-bottom: 1.5rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid var(--subtle-border);
-            border-radius: 15px;
-            text-align: left;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 1.15rem;
-            font-family: 'Rajdhani', sans-serif;
-            position: relative;
-            overflow: hidden;
-            animation: answerSlideIn 0.5s ease-out backwards;
-            animation-delay: calc(var(--answer-index) * 0.1s);
-        }
-
-        .answer-option::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            /* Shimmer using Blue */
-            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .answer-option:hover::before {
-            left: 100%;
-        }
-
-        .answer-option:hover {
-            background: rgba(96, 165, 250, 0.1);
-            border-color: var(--secondary-color);
-            transform: translateX(10px) scale(1.02);
-            box-shadow: 0 10px 30px var(--accent-glow);
-        }
-
-        .answer-option.correct {
-            background: var(--quiz-correct-bg); /* Purple background */
-            border-color: var(--tertiary-color);
-            box-shadow: 0 0 40px rgba(167, 138, 250, 0.5);
-            animation: correctAnswer 0.6s ease-out;
-        }
-
-        .answer-option.incorrect {
-            background: var(--quiz-incorrect-bg); /* Reddish tint */
-            border-color: #FF5252;
-            animation: shake 0.5s ease-out;
-        }
-
-        #quiz-feedback {
-            margin-top: 2rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            text-align: center;
-            font-family: 'Audiowide', cursive;
-            animation: feedbackPop 0.5s ease-out;
-        }
-
-
-        /* ============================================
-           RESPONSIVE DESIGN
-        ============================================ */
-        @media (max-width: 1024px) {
-            h1 { font-size: 4rem; }
-            h2 { font-size: 3rem; }
-            .card-grid, .intro-features { 
-                grid-template-columns: 1fr; 
-                max-width: 600px; 
-            }
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 3rem; letter-spacing: 2px; }
-            h2 { font-size: 2.5rem; }
-            .subtitle { font-size: 1.2rem; }
-            .asset-view-container { grid-template-columns: 1fr; }
-            header img.logo { height: 40px; }
-            .progress-dots { gap: 10px; }
-            .domainfi-container, #build-tld-container, #quiz-container {
-                padding: 2rem;
-            }
-            .card {
-                padding: 2rem;
-            }
-            .btn {
-                padding: 15px 30px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <title>DOMA Academy: Master Domain Tokenization & DomainFi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Matrix Background -->
-    <div class="matrix-bg">
-        <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
-    </div>
 
-    <!-- Stars -->
-    <div class="stars" id="stars"></div>
-
-    <!-- Nebula -->
-    <div class="nebula nebula1"></div>
-    <div class="nebula nebula2"></div>
-    <div class="nebula nebula3"></div>
-
-    <!-- Grid Overlay -->
-    <div class="grid-overlay"></div>
-
-    <!-- Header -->
-    <header>
-        <!-- Using the attached doma.png as the logo -->
-        <img src="doma.png" alt="D3 Logo" class="logo">
-        <div class="progress-dots" id="progressDots"></div>
+    <header id="header">
+        <div class="logo-container" onclick="showSection('home')">
+            <img src="logo.png" alt="DOMA Logo" class="logo-img">
+            <span class="logo-text">DOMA Academy</span>
+        </div>
+        <nav>
+            <a href="#" data-section="home" class="nav-item active">Home</a>
+            <a href="#" data-section="lessons" class="nav-item">Lessons</a>
+            <a href="#" data-section="flashcards" class="nav-item">Glossary</a>
+            <a href="#" data-section="library" class="nav-item">Documentation</a>
+            <a href="#" data-section="certificate" class="nav-item">Certificate</a>
+        </nav>
+        <div class="header-streak">
+            <i class="fas fa-fire streak-icon-small"></i>
+            <span id="current-streak-header">0 Days</span>
+        </div>
     </header>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Page 1: Hero Section - D3 & DomainFi -->
-        <div class="page active" id="page1">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h1 data-text="Doma">Doma</h1>
-                    <p class="subtitle">Tokenizing Domains as Real-World Assets. Building the future of DomainFi on the Doma Protocol.</p>
-                    <div class="btn-group">
-                        <button class="btn" onclick="nextPage()">
-                            Explore DomainFi
-                            <span class="arrow-down">→</span>
-                        </button>
+    <main id="app-container">
+
+        <!-- HOME SECTION -->
+        <section id="home" class="content-section active">
+            <div class="hero-section section-card">
+                <h1>Master Domain Tokenization with DOMA Protocol</h1>
+                <p>Learn how DOMA is transforming the $350B+ domain industry by bringing 362M+ internet domains on-chain. Discover DomainFi, fractional ownership, and how domains become programmable assets in Web3.</p>
+                <button class="cta-button" onclick="showSection('lessons')">Start Learning Now</button>
+            </div>
+
+            <div class="progress-stats section-card">
+                <h2>Your DomainFi Education Journey</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3>Overall Progress</h3>
+                        <div class="progress-bar-container">
+                            <div id="overall-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <span id="progress-percent">0% Completed (0/6 Lessons Passed)</span>
                     </div>
-                    <div class="intro-features">
-                        <div class="intro-feature">
-                            <div class="intro-feature-icon">🌐</div>
-                            <h3>Tokenized Domains</h3>
-                            <p>Turning over 362M+ domains into valuable Web3 assets.</p>
-                        </div>
-                        <div class="intro-feature">
-                            <div class="intro-feature-icon">💎</div>
-                            <h3>Real-World Assets</h3>
-                            <p>Unlock liquidity and utility for your domain names.</p>
-                        </div>
-                        <div class="intro-feature">
-                            <div class="intro-feature-icon">🔗</div>
-                            <h3>Doma Protocol</h3>
-                            <p>The infrastructure powering DomainFi on-chain.</p>
-                        </div>
+                    <div class="stat-box">
+                        <h3>Learning Streak</h3>
+                        <i class="fas fa-fire streak-icon"></i>
+                        <span id="current-streak">0 Days</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Page 2: About D3 & DomainFi -->
-        <div class="page" id="page2">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h2>What is DomainFi?</h2>
-                    <p class="subtitle">D3 is pioneering DomainFi, transforming traditional domain names into decentralized, tokenized assets with real-world value.</p>
-                    <div class="card-grid">
-                        <div class="card">
-                            <div class="card-icon">💼</div>
-                            <h3>Tokenizing the Internet</h3>
-                            <p>We're making domain names tradable NFTs, unlocking new economic models and ownership paradigms.</p>
-                            <div class="info-box">
-                                ** backed by Paradigm and led by veterans behind .xyz and .tv.
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">💰</div>
-                            <h3>Real-World Asset Class</h3>
-                            <p>Domains are now more than just addresses; they are valuable digital assets with verifiable ownership and potential for appreciation.</p>
-                            <div class="info-box">
-                                This opens up avenues for investment, collateralization, and fractional ownership.
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">🚀</div>
-                            <h3>Innovation in Identity</h3>
-                            <p>By tokenizing domains, D3 enables new forms of digital identity, community ownership, and decentralized governance.</p>
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
-                        <button class="btn" onclick="nextPage()">Discover Doma Protocol →</button>
+            <div class="mini-game-container section-card">
+                <h2>Interactive Demo: Tokenize Your First Domain</h2>
+                <p>Simulate domain tokenization and watch your digital asset generate value through fractional ownership and trading.</p>
+                <button class="learn-more-button cta-button" onclick="openDomainSimulator()">Launch Domain Simulator</button>
+            </div>
+        </section>
+
+        <!-- LESSONS SECTION -->
+        <section id="lessons" class="content-section hidden">
+            <h1>DOMA Academy Curriculum</h1>
+            <div id="lessons-list" class="grid-container"></div>
+        </section>
+
+        <!-- LESSON VIEWER -->
+        <section id="lesson-viewer" class="content-section hidden">
+            <button class="back-button" onclick="showSection('lessons')"><i class="fas fa-arrow-left"></i> Back to Lessons</button>
+            <h2 id="lesson-title"></h2>
+            
+            <div class="lesson-content-wrapper section-card">
+                <div class="lesson-progress-bar-container">
+                    <span class="progress-label">Read Progress: <span id="read-progress-percent">0%</span></span>
+                    <div id="lesson-read-progress" class="progress-bar lesson-bar-small" style="width: 0%;"></div>
+                </div>
+                
+                <div id="lesson-content-display"></div>
+
+                <div id="lesson-navigation-footer" class="hidden">
+                    <button id="next-lesson-btn" class="cta-button">Go to Next Lesson <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <div id="quiz-area" class="quiz-container hidden section-card">
+                <h3>Quiz Time!</h3>
+                <p>Answer each question step-by-step. You need 4 out of 5 correct to pass and advance.</p>
+                
+                <div id="quiz-progress-info">
+                    <span id="quiz-step-indicator">Question 1 of 5</span>
+                </div>
+
+                <div id="quiz-question-display"></div>
+
+                <div id="quiz-navigation">
+                    <button id="quiz-next-btn" class="cta-button">Next Question</button>
+                </div>
+
+                <div id="quiz-results" class="hidden">
+                    <h3>Quiz Results</h3>
+                    <p id="quiz-score"></p>
+                    <div id="quiz-review"></div>
+                    <div id="quiz-hints"></div>
+                    <div class="quiz-result-actions">
+                        <button id="retry-quiz-btn" class="cta-button hidden">Retry Quiz</button>
+                        <button id="finish-quiz-btn" class="cta-button hidden">Back to Lessons</button>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Page 3: Doma Protocol -->
-        <div class="page" id="page3">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h2>The Power of Doma Protocol</h2>
-                    <p class="subtitle">Doma Protocol is the blockchain infrastructure enabling D3's DomainFi network, bringing tokenization to life.</p>
-                    <div class="card-grid">
-                        <div class="card">
-                            <div class="card-icon">⚙️</div>
-                            <h3>Blockchain Backbone</h3>
-                            <p>Doma Protocol provides the secure and scalable foundation for minting, managing, and trading tokenized domains.</p>
-                            <ul>
-                                <li>Leverages cutting-edge blockchain technology.</li>
-                                <li>Ensures secure and transparent ownership records.</li>
-                                <li>Supports interoperability and future growth.</li>
-                            </ul>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">🖼️</div>
-                            <h3>NFT Standards</h3>
-                            <p>Domains are represented as unique Non-Fungible Tokens (NFTs), adhering to industry-standard protocols for seamless integration.</p>
-                            <ul>
-                                <li>Each domain is a distinct digital asset.</li>
-                                <li>Ownership is cryptographically verifiable.</li>
-                                <li>Enables a rich ecosystem of dApps and marketplaces.</li>
-                            </ul>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">💡</div>
-                            <h3>Enabling Innovation</h3>
-                            <p>Doma Protocol is designed to support the evolving needs of DomainFi, from new TLD launches to complex financial instruments built on domains.</p>
-                            <ul>
-                                <li>Flexibility for community-driven TLDs.</li>
-                                <li>Infrastructure for domain-based DeFi.</li>
-                                <li>Future-proofed for emerging use cases.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
-                        <button class="btn" onclick="nextPage()">Explore D3 App →</button>
-                    </div>
-                </div>
+        <!-- FLASHCARDS SECTION -->
+        <section id="flashcards" class="content-section hidden">
+            <h1>DomainFi & Blockchain Terminology</h1>
+            <p>Master DOMA's core concepts. Click any card to reveal definitions.</p>
+            <div id="flashcard-grid" class="grid-container"></div>
+        </section>
+
+        <!-- LIBRARY SECTION -->
+        <section id="library" class="content-section hidden">
+            <h1>DOMA Protocol Technical Documentation</h1>
+            <p>Deep dive into architecture, smart contracts, and domain tokenization mechanics.</p>
+            <div id="library-content"></div>
+        </section>
+        
+        <!-- CERTIFICATE SECTION -->
+        <section id="certificate" class="content-section hidden">
+            <h1>Your DomainFi Expert Certification</h1>
+            <div id="certificate-status" class="section-card">
+                <p id="certificate-message">Complete all 6 lessons and quizzes to earn your DOMA Academy Certification!</p>
+                <img id="certificate-display" src="certificate.png" alt="DOMA Academy Certificate" class="certificate-img hidden" onerror="this.style.display='none'">
+                <button id="download-certificate" class="cta-button hidden">Download Certificate</button>
             </div>
-        </div>
+        </section>
 
-        <!-- Page 4: D3 App & Marketplace -->
-        <div class="page" id="page4">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h2>The D3 App: Your DomainFi Hub</h2>
-                    <p class="subtitle">Discover, acquire, and manage your Web3-native name tokens with the user-friendly D3 App and Marketplace.</p>
-                    <div class="domainfi-container">
-                        <div class="domainfi-controls">
-                            <button id="exploreMarketplaceBtn" class="btn">🛒 Explore Marketplace</button>
-                            <!-- Download app button removed as requested -->
-                        </div>
-
-                        <div id="domainfiStep1" class="domainfi-step">
-                            <h3>Step 1: Discover Unique Domains</h3>
-                            <p>Browse a curated selection of Web3-native name tokens, from established names like .ape and .shib to emerging community TLDs.</p>
-                            <div class="asset-view-container">
-                                <div class="public-asset-view">
-                                    <strong>🖼️ Featured TLDs</strong>
-                                    <p>Explore domains such as:</p>
-                                    <ul style="list-style: disc; padding-left: 20px; margin-top: 1rem;">
-                                        <li>.ape</li>
-                                        <li>.shib</li>
-                                        <li>.vic</li>
-                                        <li>.core</li>
-                                    </ul>
-                                </div>
-                                <div class="private-asset-view">
-                                    <strong>✨ Your Potential Assets</strong>
-                                    <p>Each domain represents an exclusive, tokenized asset waiting to be claimed or traded.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="domainfiStep2" class="domainfi-step">
-                            <h3>Step 2: Secure Your Name Token</h3>
-                            <p>Purchase domains as NFTs, instantly gaining verifiable ownership and the ability to trade them on the D3 Marketplace.</p>
-                            <div class="info-box" style="margin-top: 1rem;">
-                                ✅ Secure your digital identity and invest in a new class of digital assets.
-                            </div>
-                        </div>
-
-                        <div id="domainfiStep3" class="domainfi-step">
-                            <h3>Step 3: Trade and Monetize</h3>
-                            <p>List your domain name tokens for sale, participate in auctions, or leverage them as collateral in the growing DomainFi ecosystem.</p>
-                            <div class="info-box" style="margin-top: 1rem;">
-                                📈 Unlock liquidity and discover new ways to monetize your digital identity.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
-                        <button class="btn" onclick="nextPage()">Imagine Your TLD →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Page 5: Build-A-TLD Interactive -->
-        <div class="page" id="page5">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h2>Build Your Own TLD</h2>
-                    <p class="subtitle">Interstellar (via D3) makes it possible for communities to own their own internet identity through real ICANN-backed TLDs. What's your dream TLD?</p>
-                    
-                    <div id="build-tld-container">
-                        <div id="build-tld-header">
-                            <span id="tld-title">Design Your TLD</span>
-                        </div>
-                        <h3 id="tld-question">Pick your dream TLD, explain its use, and why it would matter!</h3>
-                        
-                        <div class="tld-input-group">
-                            <label for="dream-tld">Your Dream TLD:</label>
-                            <input type="text" id="dream-tld" class="tld-input-field" placeholder="e.g., .frog, .quest, .vibes">
-                        </div>
-                        
-                        <div class="tld-input-group">
-                            <label for="tld-usage">How would it be used?</label>
-                            <textarea id="tld-usage" class="tld-input-field" rows="4" placeholder="Describe its purpose, community, or applications..."></textarea>
-                        </div>
-                        
-                        <div class="tld-input-group">
-                            <label for="tld-impact">Why would it matter?</label>
-                            <textarea id="tld-impact" class="tld-input-field" rows="4" placeholder="Explain its unique value or significance..."></textarea>
-                        </div>
-                        
-                        <button id="submit-tld-idea" class="btn">🚀 Submit Idea</button>
-                        <div id="tld-example-output"></div>
-                    </div>
-
-                    <div class="btn-group" style="margin-top: 3rem;">
-                        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
-                        <button class="btn" onclick="nextPage()">Test Your Knowledge →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Page 6: Quiz -->
-        <div class="page" id="page6">
-            <div class="page-container">
-                <div style="width: 100%;">
-                    <h2>Test Your DomainFi Knowledge</h2>
-                    <p class="subtitle">How well do you understand D3, DomainFi, and the future of digital assets?</p>
-                    
-                    <div id="quiz-container">
-                        <div id="quiz-header">
-                            <span id="question-counter">Question 1 of 5</span>
-                            <span id="score">Score: 0/0</span>
-                        </div>
-                        <h3 id="quiz-question"></h3>
-                        <div id="quiz-answers"></div>
-                        <div id="quiz-feedback"></div>
-                        <button id="next-question-btn" class="btn">Next Question</button>
-                    </div>
-
-                    <div class="btn-group" style="margin-top: 3rem;">
-                        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
 
-    <script>
-        // ==========================================
-        // MATRIX RAIN EFFECT (Updated Color)
-        // ==========================================
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // New characters referencing D3/DomainFi concepts
-        const matrixChars = 'D3DOMAINASSETS NFT123'; 
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = [];
-
-        for (let i = 0; i < columns; i++) {
-            drops[i] = Math.random() * -100;
-        }
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(30, 58, 140, 0.05)'; // Base color adjustment
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = 'var(--matrix-color)'; // Use the new Primary Color (Lighter Blue)
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        setInterval(drawMatrix, 50);
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // ==========================================
-        // CREATE STARS (Dual Color)
-        // ==========================================
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 100; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            starsContainer.appendChild(star);
-        }
-
-        // ==========================================
-        // PAGE NAVIGATION
-        // ==========================================
-        let currentPage = 1;
-        const totalPages = 6; // Adjusted for the new pages
-
-        function updateProgressDots() {
-            const dotsContainer = document.getElementById('progressDots');
-            dotsContainer.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'progress-dot';
-                if (i === currentPage) dot.classList.add('active');
-                if (i < currentPage) dot.classList.add('completed');
-                dot.onclick = () => goToPage(i);
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        function goToPage(pageNum) {
-            document.getElementById(`page${currentPage}`).classList.remove('active');
-            currentPage = pageNum;
-            document.getElementById(`page${currentPage}`).classList.add('active');
-            updateProgressDots();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function nextPage() {
-            if (currentPage < totalPages) {
-                goToPage(currentPage + 1);
-            }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                goToPage(currentPage - 1);
-            }
-        }
-
-        updateProgressDots();
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextPage();
-            if (e.key === 'ArrowLeft') prevPage();
-        });
-
-        // ==========================================
-        // DOMAINFI DEMO LOGIC
-        // ==========================================
-        const exploreMarketplaceBtn = document.getElementById('exploreMarketplaceBtn');
-        const domainfiSteps = [
-            document.getElementById('domainfiStep1'),
-            document.getElementById('domainfiStep2'),
-            document.getElementById('domainfiStep3'),
-        ];
-        const tokenizedDataElements = document.querySelectorAll('.tokenized-data');
-        let currentDomainfiStep = 0;
-        let domainfiInterval;
-
-        function runDomainfiDemo() {
-            resetDomainfiDemo(); // Ensure clean start
-            exploreMarketplaceBtn.disabled = true;
-            exploreMarketplaceBtn.textContent = 'Navigating...';
+    <!-- DOMAIN TOKENIZATION SIMULATOR MODAL -->
+    <div id="domain-simulator-modal" class="modal hidden">
+        <div class="modal-content section-card trading-simulator">
+            <span class="modal-close" onclick="closeDomainSimulator()">&times;</span>
+            <h2>Domain Tokenization Simulator</h2>
+            <p>Tokenize a domain and watch its trading value evolve</p>
             
-            domainfiSteps[0].classList.add('visible');
-            
-            domainfiInterval = setInterval(() => {
-                currentDomainfiStep++;
-                if (currentDomainfiStep < domainfiSteps.length) {
-                    domainfiSteps[currentDomainfiStep].classList.add('visible');
-                    domainfiSteps[currentDomainfiStep].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                
-                if (currentDomainfiStep === 1) {
-                    setTimeout(() => {
-                        tokenizedDataElements.forEach(el => el.classList.add('revealed'));
-                    }, 1000); // Reveal tokenized data after step is shown
-                }
-                
-                if (currentDomainfiStep >= domainfiSteps.length - 1) {
-                    clearInterval(domainfiInterval);
-                    exploreMarketplaceBtn.textContent = '✓ Marketplace Ready';
-                }
-            }, 3000); // Increased step time for each step
-        }
-
-        function resetDomainfiDemo() {
-            clearInterval(domainfiInterval);
-            currentDomainfiStep = 0;
-            domainfiSteps.forEach(step => step.classList.remove('visible'));
-            tokenizedDataElements.forEach(el => el.classList.remove('revealed'));
-            exploreMarketplaceBtn.disabled = false;
-            exploreMarketplaceBtn.textContent = '🛒 Explore Marketplace';
-            domainfiSteps[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        exploreMarketplaceBtn.addEventListener('click', runDomainfiDemo);
-
-        // ==========================================
-        // BUILD-A-TLD INTERACTIVE LOGIC
-        // ==========================================
-        const dreamTldInput = document.getElementById('dream-tld');
-        const tldUsageInput = document.getElementById('tld-usage');
-        const tldImpactInput = document.getElementById('tld-impact');
-        const submitTldBtn = document.getElementById('submit-tld-idea');
-        const tldOutputEl = document.getElementById('tld-example-output');
-
-        submitTldBtn.addEventListener('click', () => {
-            const dreamTld = dreamTldInput.value.trim();
-            const tldUsage = tldUsageInput.value.trim();
-            const tldImpact = tldImpactInput.value.trim();
-
-            if (!dreamTld) {
-                tldOutputEl.textContent = "Please enter your dream TLD!";
-                tldOutputEl.style.color = '#FF5252';
-                return;
-            }
-
-            let outputMessage = `
-                Dream TLD: <strong>${dreamTld}</strong> <br>
-                Usage: <em>"${tldUsage}"</em> <br>
-                Impact: <em>"${tldImpact}"</em>
-            `;
-            tldOutputEl.innerHTML = outputMessage;
-            tldOutputEl.style.color = 'var(--tertiary-color)'; // Output in purple
-
-            // Simulate sending idea (e.g., to a backend or just show confirmation)
-            dreamTldInput.value = '';
-            tldUsageInput.value = '';
-            tldImpactInput.value = '';
-        });
-
-        // ==========================================
-        // QUIZ LOGIC (DomainFi/Blockchain Themed)
-        // ==========================================
-        const quizData = [
-            {
-                question: "What is D3 building the world's first network for?",
-                answers: [
-                    "Decentralized Exchanges (DEXs)",
-                    "Domain Finance (DomainFi)",
-                    "Decentralized Autonomous Organizations (DAOs)",
-                    "Decentralized Identity (DID) solutions"
-                ],
-                correct: 1 // DomainFi
-            },
-            {
-                question: "The Doma Protocol is the blockchain infrastructure for:",
-                answers: [
-                    "Gaming NFTs",
-                    "Social Media Tokens",
-                    "Tokenizing domains as Real-World Assets",
-                    "Decentralized Storage"
-                ],
-                correct: 2 // Tokenizing domains as Real-World Assets
-            },
-            {
-                question: "What does it mean for a domain to be tokenized as an NFT on D3?",
-                answers: [
-                    "It becomes a standard, unchangeable website address.",
-                    "It can be traded, owned, and potentially used as collateral.",
-                    "It is only accessible within the D3 App.",
-                    "It requires a special browser plugin to access."
-                ],
-                correct: 1 // Can be traded, owned, and potentially used as collateral
-            },
-            {
-                question: "Which of these is NOT listed as a potential use case for tokenized domains in the D3 ecosystem?",
-                answers: [
-                    "Gaming & Metaverse assets",
-                    "Decentralized Finance (DeFi) collateral",
-                    "Private communication channels",
-                    "Community governance tokens"
-                ],
-                correct: 2 // Private communication channels
-            },
-            {
-                question: "What is a key benefit of DomainFi, as presented by D3?",
-                answers: [
-                    "Reduced website loading speeds",
-                    "Increased censorship resistance for domain names",
-                    "Unlocking liquidity and utility for domain names as digital assets",
-                    "Making domain registration completely free"
-                ],
-                correct: 2 // Unlocking liquidity and utility for domain names as digital assets
-            }
-        ];
-
-        const questionCounterEl = document.getElementById('question-counter');
-        const scoreEl = document.getElementById('score');
-        const questionEl = document.getElementById('quiz-question');
-        const answersEl = document.getElementById('quiz-answers');
-        const feedbackEl = document.getElementById('quiz-feedback');
-        const nextBtn = document.getElementById('next-question-btn');
-
-        let currentQuizQuestion = 0;
-        let score = 0;
-        let questionsAnswered = 0;
-
-        function loadQuiz() {
-            feedbackEl.textContent = '';
-            nextBtn.style.display = 'none';
-            
-            if (currentQuizQuestion >= quizData.length) {
-                questionEl.textContent = `🎉 DomainFi Knowledge Test Complete!`;
-                answersEl.innerHTML = `
-                    <div class="card" style="text-align: center; padding: 3rem; margin-top: 2rem;">
-                        <h3 style="font-size: 2rem; margin-bottom: 1rem; color: var(--tertiary-color);">Your Score: ${score} / ${quizData.length}</h3>
-                        <p style="font-size: 1.2rem;">
-                            ${score === quizData.length ? 
-                                "🌟 Perfect score! You're a DomainFi expert!" : 
-                                score >= quizData.length * 0.7 ? 
-                                "✅ Strong performance! You grasp the DomainFi fundamentals." :
-                                "📚 Keep exploring D3's resources to master DomainFi!"}
-                        </p>
+            <div class="simulator-container">
+                <!-- Tokenization Setup -->
+                <div id="tokenization-setup" class="setup-phase">
+                    <div class="setup-grid">
+                        <div class="setup-input">
+                            <label>Domain Extension</label>
+                            <select id="domain-extension">
+                                <option value=".com">.com (Most Valuable)</option>
+                                <option value=".ai">.ai (Emerging Tech)</option>
+                                <option value=".sol">.sol (Web3 Native)</option>
+                                <option value=".io">.io (Startup Hub)</option>
+                                <option value=".xyz">.xyz (Generic)</option>
+                            </select>
+                        </div>
+                        <div class="setup-input">
+                            <label>Domain Quality</label>
+                            <select id="domain-quality">
+                                <option value="premium">Premium (5+ chars, keyword)</option>
+                                <option value="standard">Standard (6-8 chars)</option>
+                                <option value="common">Common (9+ chars)</option>
+                            </select>
+                        </div>
+                        <div class="setup-input">
+                            <label>Initial Valuation (USD)</label>
+                            <input type="number" id="domain-valuation" value="50000" min="1000" step="1000">
+                        </div>
                     </div>
-                `;
-                document.getElementById('quiz-header').style.display = 'none';
-                return;
-            }
 
-            const currentQuestionData = quizData[currentQuizQuestion];
-            questionCounterEl.textContent = `Question ${currentQuizQuestion + 1} of ${quizData.length}`;
-            scoreEl.textContent = `Score: ${score}/${questionsAnswered}`;
-            questionEl.textContent = currentQuestionData.question;
-            answersEl.innerHTML = '';
+                    <div class="tokenization-type">
+                        <button id="fractional-btn" class="tokenization-btn active" onclick="selectTokenType('fractional')">
+                            <i class="fas fa-cubes"></i> Fractional (ERC-20)
+                        </button>
+                        <button id="nft-btn" class="tokenization-btn" onclick="selectTokenType('nft')">
+                            <i class="fas fa-crown"></i> Full NFT
+                        </button>
+                    </div>
 
-            currentQuestionData.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.textContent = answer;
-                button.classList.add('answer-option');
-                button.dataset.index = index;
-                button.addEventListener('click', selectAnswer);
-                answersEl.appendChild(button);
-            });
-        }
+                    <button class="cta-button tokenize-btn" onclick="tokenizeDomain()">
+                        <i class="fas fa-wand-magic-sparkles"></i> Tokenize Domain
+                    </button>
+                </div>
 
-        function selectAnswer(e) {
-            const selectedBtn = e.target;
-            const correctIndex = quizData[currentQuizQuestion].correct;
-            const selectedIndex = parseInt(selectedBtn.dataset.index);
+                <!-- Active Trading -->
+                <div id="trading-phase" class="trading-phase hidden">
+                    <div class="trading-header">
+                        <div class="info-item">
+                            <span class="label">Domain Name</span>
+                            <span id="display-domain" class="value">example.com</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Current Token Price</span>
+                            <span id="current-price-display" class="value">$100</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Total Valuation</span>
+                            <span id="total-valuation" class="value">\$50,000</span>
+                        </div>
+                    </div>
 
-            questionsAnswered++;
-            
-            if (selectedIndex === correctIndex) {
-                score++;
-                selectedBtn.classList.add('correct');
-                feedbackEl.textContent = '✓ Correct! DomainFi knowledge confirmed!';
-                feedbackEl.style.color = 'var(--tertiary-color)';
-            } else {
-                selectedBtn.classList.add('incorrect');
-                feedbackEl.textContent = '✗ Incorrect answer.';
-                feedbackEl.style.color = '#FF5252';
-                // Highlight the correct answer
-                const correctButton = answersEl.querySelector(`[data-index='${correctIndex}']`);
-                if (correctButton) {
-                    correctButton.classList.add('correct');
-                }
-            }
-            
-            // Disable further clicks and make buttons look static
-            Array.from(answersEl.children).forEach(btn => {
-                btn.removeEventListener('click', selectAnswer);
-                btn.style.cursor = 'default';
-                btn.style.opacity = '0.8'; // Slightly faded for inactive
-            });
-            
-            scoreEl.textContent = `Score: ${score}/${questionsAnswered}`;
-            nextBtn.style.display = 'block';
-        }
+                    <!-- Trading Chart -->
+                    <div class="chart-container">
+                        <canvas id="price-chart"></canvas>
+                    </div>
 
-        nextBtn.addEventListener('click', () => {
-            currentQuizQuestion++;
-            loadQuiz();
-        });
+                    <!-- Domain Stats -->
+                    <div class="position-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Extension:</span>
+                            <span id="extension-display" class="stat-value">.com</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Quality Tier:</span>
+                            <span id="quality-display" class="stat-value">Premium</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Tokenization Type:</span>
+                            <span id="tokentype-display" class="stat-value">Fractional</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Total Tokens:</span>
+                            <span id="total-tokens-display" class="stat-value">500</span>
+                        </div>
+                    </div>
 
-        loadQuiz();
-    </script>
+                    <!-- Value Growth Display -->
+                    <div id="value-container" class="value-container">
+                        <div class="value-box">
+                            <span class="value-label">Domain Appreciation</span>
+                            <span id="appreciation-display" class="value-amount">+$0</span>
+                            <span id="appreciation-percent" class="value-percent">+0.00%</span>
+                        </div>
+                    </div>
+
+                    <!-- Market Dynamics -->
+                    <div class="market-info">
+                        <div class="market-row">
+                            <span class="market-label">Trading Volume (24h):</span>
+                            <span id="trading-volume" class="market-value">$0</span>
+                        </div>
+                        <div class="market-row">
+                            <span class="market-label">Holders:</span>
+                            <span id="holders-count" class="market-value">1</span>
+                        </div>
+                        <div class="market-row">
+                            <span class="market-label">Active Listings:</span>
+                            <span id="active-listings" class="market-value">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="trading-controls">
+                        <button class="control-btn" onclick="advanceWeek()">
+                            <i class="fas fa-forward"></i> Advance 1 Week
+                        </button>
+                        <button class="control-btn" onclick="closeDomainSimulator()">
+                            <i class="fas fa-times"></i> Close Simulator
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lesson-completed-notification" class="notification hidden">
+        <span id="completed-message">Lesson X Completed!</span>
+    </div>
+
+    <footer id="footer">
+        <p>DOMA Academy - Master Domain Tokenization & DomainFi | Visit <a href="https://www.doma.xyz" target="_blank" rel="noopener">doma.xyz</a></p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
